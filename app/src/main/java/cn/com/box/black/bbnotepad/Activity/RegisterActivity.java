@@ -61,7 +61,7 @@ public class RegisterActivity extends BaseActivity {
         }
         @Override
         public void onFail(String msg) {
-            Toast.makeText(RegisterActivity.this,"祖册失败",Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this,"注册失败",Toast.LENGTH_SHORT).show();
         }
     };
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
