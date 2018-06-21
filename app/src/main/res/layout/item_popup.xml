@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ic_pop_bgb"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/btn_item_del"
+        android:layout_width="55dp"
+        android:layout_height="33dp"
+        android:background="#00000000"
+        android:text="删除"
+        android:textColor="#fff"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btn_item_check"
+        android:layout_width="55dp"
+        android:layout_height="33dp"
+        android:background="#00000000"
+        android:text="查看"
+        android:textColor="#fff"
+        android:textSize="12sp" />
+
+
+</LinearLayout>
