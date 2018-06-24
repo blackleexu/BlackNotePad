@@ -1,9 +1,10 @@
 # **BNP V1.3**
 #### 一款可输入富文本的记事本app 
 <br> 
-### 引用关键库：
-[TakePhoto](https://github.com/crazyandcoder/TakePhoto)<br> 
-[Icarus](https://github.com/mr5/icarus-android)<br> 
+### **引用关键库**
+
+[TakePhoto](https://github.com/crazyandcoder/TakePhoto)
+[Icarus](https://github.com/mr5/icarus-android)
 
 
 ### **功能点**
@@ -14,7 +15,7 @@
 
 ### 界面展示
 
-![](http://39.105.20.169/BNPintroduction/img/page1.png)
+![](http://39.105.20.169/BNPintroduction/img/page11.jpg) ![](http://39.105.20.169/BNPintroduction/img/page22.jpg) ![](http://39.105.20.169/BNPintroduction/img/page33.jpg)
 
 ### 基本演示介绍
-[BNP](http://39.105.20.169/BNPintroduction/index.html)\<br>
+[BNP](http://39.105.20.169/BNPintroduction/index.html)
