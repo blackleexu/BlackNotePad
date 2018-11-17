@@ -51,9 +51,7 @@ public class StartActivity extends AppCompatActivity {
         public void onResponse(ServerIPBean ipBean) {
             ip = ipBean.getIp().toString();
             //记录访问IP
-            showToast(ip);
             Server.BASE_URL = ip;
-            Toast.makeText(StartActivity.this,"登陆成功"+ip,Toast.LENGTH_SHORT).show();
         }
         @Override
         public void onFail(String msg) {
@@ -105,8 +103,8 @@ public class StartActivity extends AppCompatActivity {
         // 注意：此处将setContentView()方法注释掉
          setContentView(R.layout.activity_start);
 
-//        IPModel ipModul = new IPModel();
-//        ipModul.getIP(ttListener);
+        IPModel ipModul = new IPModel();
+        ipModul.getIP(ttListener);
         check=getUser_remember();
         handler.postDelayed(new Runnable() {
             @Override
