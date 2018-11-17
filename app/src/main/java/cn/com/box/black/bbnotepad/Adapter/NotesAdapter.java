@@ -7,6 +7,9 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.util.List;
 
 import cn.com.box.black.bbnotepad.Bean.NotesBean;
@@ -35,9 +38,13 @@ public class NotesAdapter extends BaseAdapter<NotesBean>{
         final NotesBean bean = items.get(position);
         if(bean==null) return;
         final ViewHolder viewHolder= (ViewHolder) holder;
+        //将html字段转化成普通字段
+        Document doc = Jsoup.parse(bean.getContent());
+        String txt = doc.body().text();
         viewHolder.contenttv.setText(bean.getTittle());
         String replace=bean.getContent().replace("<img src="+"\""+"http://39.105.20.169/notepad/Uploads/images/"+user_id_remember,"图片");
-        viewHolder.replace.setText(replace.replace("\""+" alt="+"\""+"dachshund"+"\"",""));
+        viewHolder.replace.setText(txt);
+
         viewHolder.articletv.setText(bean.getContent());
         viewHolder.timetv.setText(bean.getCreated_at());
 //        Picasso.with(context).load(items.get(position).getPic()).into(viewHolder.img);

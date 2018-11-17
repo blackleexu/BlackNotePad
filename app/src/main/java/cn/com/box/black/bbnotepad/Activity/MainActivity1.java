@@ -38,6 +38,7 @@ import java.util.Map;
 
 import cn.com.box.black.bbnotepad.Fragment.Fragment1;
 import cn.com.box.black.bbnotepad.Fragment.Fragment11;
+import cn.com.box.black.bbnotepad.Fragment.Fragment111;
 import cn.com.box.black.bbnotepad.Fragment.Fragment2;
 import cn.com.box.black.bbnotepad.Fragment.Fragment3;
 import cn.com.box.black.bbnotepad.R;
@@ -127,7 +128,7 @@ public class MainActivity1 extends AppCompatActivity {
         layout3.setOnClickListener(onClickListener);
 
         views=new Fragment[3];
-        views[0]= new Fragment11();
+        views[0]= new Fragment111();
         views[1]= new Fragment2();
         views[2]= new Fragment3();
 

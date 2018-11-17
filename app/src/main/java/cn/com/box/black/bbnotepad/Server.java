@@ -5,7 +5,7 @@ package cn.com.box.black.bbnotepad;
  */
 
 public class Server {
-    public static final String BASE_URL = "http://39.105.20.169/notepad/notepadapi/";
+    public static String BASE_URL = "http://39.105.20.169:8099/notepadapi/";
     public static boolean BOOL_FLAG = false;
     public static int user_id_remember=-1;
     public final static int shop_flag=0;

@@ -4,6 +4,7 @@ import java.util.List;
 
 import cn.com.box.black.bbnotepad.Bean.NotesBean;
 import cn.com.box.black.bbnotepad.Bean.ResultBean;
+import cn.com.box.black.bbnotepad.Bean.ServerIPBean;
 import cn.com.box.black.bbnotepad.Bean.SuccessBean;
 import cn.com.box.black.bbnotepad.Bean.UserInfoBean;
 import okhttp3.MultipartBody;
@@ -56,6 +57,9 @@ public interface Service {
     @Multipart
     @POST("upload.php")
     Call<ResultBean> uploadImage(@Part MultipartBody.Part file, @Part("uid") RequestBody uid);
+
+    @GET("getip")
+    Call<ServerIPBean> getIP();
 //    @GET("getAllShops.do")
 //    Call<List<ShopListBean>> getShoplist();
 //

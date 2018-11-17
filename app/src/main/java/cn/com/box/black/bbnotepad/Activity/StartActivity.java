@@ -22,10 +22,13 @@ import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 
+import cn.com.box.black.bbnotepad.Bean.ServerIPBean;
 import cn.com.box.black.bbnotepad.Bean.SuccessBean;
 import cn.com.box.black.bbnotepad.Listener.TListener;
+import cn.com.box.black.bbnotepad.Model.IPModel;
 import cn.com.box.black.bbnotepad.Model.LoginModel;
 import cn.com.box.black.bbnotepad.R;
+import cn.com.box.black.bbnotepad.Server;
 
 import static cn.com.box.black.bbnotepad.Server.AUTO_LOGIN;
 import static cn.com.box.black.bbnotepad.Server.user_id_remember;
@@ -40,7 +43,27 @@ public class StartActivity extends AppCompatActivity {
     private String username,userpass;
     private CheckBox checkBox;
     private String userid;
+    private String ip;
     private boolean check;
+
+    TListener<ServerIPBean> ttListener = new TListener<ServerIPBean>() {
+        @Override
+        public void onResponse(ServerIPBean ipBean) {
+            ip = ipBean.getIp().toString();
+            //记录访问IP
+            showToast(ip);
+            Server.BASE_URL = ip;
+            Toast.makeText(StartActivity.this,"登陆成功"+ip,Toast.LENGTH_SHORT).show();
+        }
+        @Override
+        public void onFail(String msg) {
+            Toast.makeText(StartActivity.this,"登陆失败,IP错误"+ip,Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(StartActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
+
     TListener<SuccessBean> tListener = new TListener<SuccessBean>() {
         @Override
         public void onResponse(SuccessBean loginBean) {
@@ -81,13 +104,16 @@ public class StartActivity extends AppCompatActivity {
         }
         // 注意：此处将setContentView()方法注释掉
          setContentView(R.layout.activity_start);
+
+//        IPModel ipModul = new IPModel();
+//        ipModul.getIP(ttListener);
         check=getUser_remember();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 gotoLogin();
             }
-        }, 3000);
+        }, 2000);
     }
 
     /**

@@ -2,58 +2,37 @@ package cn.com.box.black.bbnotepad.Activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mr5.icarus.Icarus;
-import com.github.mr5.icarus.TextViewToolbar;
-import com.github.mr5.icarus.Toolbar;
-import com.github.mr5.icarus.button.TextViewButton;
-import com.github.mr5.icarus.entity.Options;
 import com.jph.takephoto.app.TakePhotoActivity;
 import com.jph.takephoto.model.CropOptions;
 import com.jph.takephoto.model.TResult;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 
 import cn.com.box.black.bbnotepad.Bean.ResultBean;
 import cn.com.box.black.bbnotepad.Bean.SuccessBean;
@@ -79,41 +58,39 @@ import static com.githang.statusbar.StatusBarTools.getStatusBarHeight;
  * Created by www44 on 2017/9/8.
  */
 
-public class Select extends TakePhotoActivity implements View.OnClickListener{
+public class Select1 extends TakePhotoActivity implements View.OnClickListener{
 
     private Button button_delt,button_bak;
     private EditText tv1,tv2;
-//    private ImageButton btn_update;
-    private FloatingActionButton btn_update;
+    private ImageButton btn_update;
+    private NoteDB noteDB;
+    private SQLiteDatabase dbwriter;
     private String rowid;
     private int result;
     private String tvC,tvA;
     private RichEditor mEditor;
     private TextView mPreview;
     private Uri imageUri;
-    private String path,res;
-    private ProgressDialog pd;
-    private Dialog mCameraDialog;
+    private String path;
 
     private ImageButton [] btnView;
     private boolean btn_flag[]={false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
-    WebView webView;
-    protected Icarus icarus;
+
     TListener<SuccessBean> tListener = new TListener<SuccessBean>() {
         @Override
         public void onResponse(SuccessBean Bean) {
 //            Toast.makeText(Select.this,""+Bean.getSuccess().toString(),Toast.LENGTH_SHORT).show();
             if(Bean.getSuccess().toString().equals("0")){
-                Toast.makeText(Select.this,"删除失败，请重试",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Select1.this,"删除失败，请重试",Toast.LENGTH_SHORT).show();
             }
             else{
-                Toast.makeText(Select.this,"删除成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Select1.this,"删除成功",Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
         @Override
         public void onFail(String msg) {
-            Toast.makeText(Select.this,"删除失败",Toast.LENGTH_SHORT).show();
+            Toast.makeText(Select1.this,"删除失败",Toast.LENGTH_SHORT).show();
         }
     };
     TListener<SuccessBean> ttListener = new TListener<SuccessBean>() {
@@ -121,16 +98,16 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
         public void onResponse(SuccessBean Bean) {
 //            Toast.makeText(Select.this,""+Bean.getSuccess().toString(),Toast.LENGTH_SHORT).show();
             if(Bean.getSuccess().toString().equals("0")){
-                Toast.makeText(Select.this,"修改失败，请重试",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Select1.this,"修改失败，请重试",Toast.LENGTH_SHORT).show();
             }
             else{
-                Toast.makeText(Select.this,"更新成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Select1.this,"更新成功",Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
         @Override
         public void onFail(String msg) {
-            Toast.makeText(Select.this,"更新失败",Toast.LENGTH_SHORT).show();
+            Toast.makeText(Select1.this,"更新失败",Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -155,29 +132,42 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
     }
 
     private void initView(){
-        webView = findViewById(R.id.editor);
-        TextViewToolbar toolbar = new TextViewToolbar();
-        Options options = new Options();
-        options.setPlaceholder("请输入正文...");
-        //  img: ['src', 'alt', 'width', 'height', 'data-non-image']
-        // a: ['href', 'target']
-        options.addAllowedAttributes("img", Arrays.asList("data-type", "data-id", "class", "src", "alt", "width", "height", "data-non-image"));
-        options.addAllowedAttributes("iframe", Arrays.asList("data-type", "data-id", "class", "src", "width", "height"));
-        options.addAllowedAttributes("a", Arrays.asList("data-type", "data-id", "class", "href", "target", "title"));
-
-        icarus = new Icarus(toolbar, options, webView);
-        prepareToolbar(toolbar, icarus);
-        icarus.loadCSS("file:///android_asset/editor.css");
-        icarus.loadJs("file:///android_asset/test.js");
-        icarus.render();
+        mEditor = (RichEditor) findViewById(R.id.editor);
+        mPreview = (TextView) findViewById(R.id.preview);
+        mEditor.setEditorHeight(200);
+        mEditor.setEditorFontSize(18);
+        mEditor.setEditorFontColor(Color.BLACK);
+        //mEditor.setEditorBackgroundColor(Color.BLUE);
+        //mEditor.setBackgroundColor(Color.BLUE);
+        //mEditor.setBackgroundResource(R.drawable.bg);
+        mEditor.setPadding(10, 10, 10, 10);
+        //    mEditor.setBackground("https://raw.githubusercontent.com/wasabeef/art/master/chip.jpg");
+        mEditor.setPlaceholder("Insert text here...");
         button_delt=findViewById(R.id.button_delt);
         button_bak=findViewById(R.id.button_bak);
-        findViewById(R.id.button_image).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setDialog();
-            }
-        });
+
+        final ImageButton btn[]={
+                findViewById(R.id.action_undo),
+                findViewById(R.id.action_redo),
+                findViewById(R.id.action_bold),
+                findViewById(R.id.action_italic),
+                findViewById(R.id.action_strikethrough),
+                findViewById(R.id.action_underline),
+                findViewById(R.id.action_heading2),
+                findViewById(R.id.action_heading3),
+                findViewById(R.id.action_heading4),
+                findViewById(R.id.action_heading5),
+                findViewById(R.id.action_bg_color),
+                findViewById(R.id.action_indent),
+                findViewById(R.id.action_outdent),
+                findViewById(R.id.action_align_left),
+                findViewById(R.id.action_align_center),
+                findViewById(R.id.action_align_right),
+                findViewById(R.id.action_insert_bullets),
+                findViewById(R.id.action_insert_numbers),
+                findViewById(R.id.action_insert_image),
+        };
+        btnView=btn;
 
         tv1=findViewById(R.id.textView_select);
 //        mEditor=findViewById(R.id.editor);
@@ -186,14 +176,214 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
 //        dbwriter = noteDB.getWritableDatabase();
 
         rowid=getIntent().getStringExtra(NoteDB.ID);
-//        showToast(""+rowid);
         tvC=getIntent().getStringExtra(NoteDB.CONTENT);
         tvA=getIntent().getStringExtra(NoteDB.ARTICLE);
         tv1.setText(tvC);
-        icarus.setContent(tvA);
-//        icarus.render();
+        mEditor.setHtml(tvA);
+
+        mPreview.setText(tvA);
+        mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
+            @Override public void onTextChange(String text) {
+                mPreview.setText(text);
+            }
+        });
+
+        btn[0].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.undo();
+            }
+        });
+
+        btn[1].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.redo();
+            }
+        });
+
+        btn[2].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(2);
+                mEditor.setBold();
+            }
+        });
+
+        btn[3].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(3);
+                mEditor.setItalic();
+            }
+        });
+
+//        view.findViewById(R.id.action_subscript).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.setSubscript();
+//            }
+//        });
+//
+//        view.findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.setSuperscript();
+//            }
+//        });
+
+        btn[4].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(4);
+                mEditor.setStrikeThrough();
+            }
+        });
+
+        btn[5].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(5);
+                mEditor.setUnderline();
+            }
+        });
+
+//        view.findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.setHeading(1);
+//            }
+//        });
+
+        btn[6].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setHeading(2);
+            }
+        });
+
+        btn[7].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setHeading(3);
+            }
+        });
+
+        btn[8].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setHeading(4);
+            }
+        });
+
+        btn[9].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setHeading(5);
+            }
+        });
+
+//        view.findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.setHeading(6);
+//            }
+//        });
+
+//        view.findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
+//            private boolean isChanged;
+//
+//            @Override public void onClick(View v) {
+//                mEditor.setTextColor(isChanged ? Color.BLACK : Color.RED);
+//                isChanged = !isChanged;
+//            }
+//        });
+//
+        btn[10].setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+
+            @Override public void onClick(View v) {
+                setBtnBackground(10);
+                mEditor.setTextBackgroundColor(isChanged ? Color.WHITE : Color.YELLOW);
+                isChanged = !isChanged;
+
+            }
+        });
+
+        btn[11].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setIndent();
+            }
+        });
+
+        btn[12].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setOutdent();
+            }
+        });
+
+        btn[13].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setAlignLeft();
+            }
+        });
+
+        btn[14].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setAlignCenter();
+            }
+        });
+
+        btn[15].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                mEditor.setAlignRight();
+            }
+        });
+
+//        view.findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.setBlockquote();
+//            }
+//        });
+
+        btn[16].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(16);
+                mEditor.setBullets();
+            }
+        });
+
+        btn[17].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBtnBackground(17);
+                mEditor.setNumbers();
+            }
+        });
+
+        btn[18].setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                CropOptions cropOptions=new CropOptions.Builder().setOutputX(200).setOutputY(200).setWithOwnCrop(true).create();
+                getTakePhoto().onPickFromGalleryWithCrop(imageUri,cropOptions);
+            }
+        });
+
+//        view.findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
+//            }
+//        });
+//        view.findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
+//            @Override public void onClick(View v) {
+//                mEditor.insertTodo();
+//            }
+//        });
     }
 
+    private void setBtnBackground(int num){
+        if(mEditor.isFocused()){
+            //已获得焦点
+        }else{
+            mEditor.setFocusable(true);
+            mEditor.setFocusableInTouchMode(true);
+            mEditor.requestFocus();
+            mEditor.requestFocusFromTouch();//获得焦点
+            InputMethodManager inputManager = (InputMethodManager)mEditor.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(mEditor, 0);
+        }
+        if(!btn_flag[num]){
+            btnView[num].setBackgroundResource(R.drawable.gray_button_background);
+            btn_flag[num]=true;
+        }else{
+            btnView[num].setBackgroundResource(0);
+            btn_flag[num]=false;
+        }
+    }
 
     private void initEvent(){
         button_delt.setOnClickListener(this);
@@ -224,124 +414,34 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
 
                 break;
             case R.id.button_bak:
-                icarus.getContent(new com.github.mr5.icarus.Callback() {
-                    @Override
-                    public void run(String params) {
-//                        Log.d("geteditorcontent", params);
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(params);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        params = jsonObject.optString("content");
-                        if (!tv1.getText().toString().equals(""+tvC.trim()) || !params.toString().equals(""+tvA.trim())) {
-                            Log.e("tittle",tv1.getText().toString());
-                            Log.e("content1",tvA);
-                            Log.e("content",params.toString());
-                            new AlertDialog.Builder(Select.this)
-                                    .setTitle("提示！")
-                                    .setMessage("内容有变化,是否放弃修改内容")
-                                    .setPositiveButton("返回保存", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                        }
-                                    })
-                                    .setNegativeButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            finish();
-                                        }
-                                    }).create().show();
-                        }else{
-                            finish();
-                        }
-                    }
-                });
-
+                if (!tv1.getText().toString().equals(""+tvC.trim()) || !mPreview.getText().toString().equals(""+tvA.trim())) {
+                    Log.e("tittle",tvC+"+"+tv1.getText().toString());
+                    Log.e("content",tvA+"+"+mPreview.getText().toString());
+                    new AlertDialog.Builder(this)
+                            .setTitle("提示！")
+                            .setMessage("内容有变化,是否放弃修改内容")
+                            .setPositiveButton("返回保存", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            }).create().show();
+                }else{
+                    finish();
+                }
 
                 break;
             case R.id.btn_update:
                 updateDatabase();
                 break;
-            case R.id.btn_choose_img:
-                //选择照片按钮
-                mCameraDialog.dismiss();
-                CropOptions cropOptions=new CropOptions.Builder().setOutputX(200).setOutputY(200).setWithOwnCrop(true).create();
-                getTakePhoto().onPickFromGalleryWithCrop(imageUri,cropOptions);
-                break;
-            case R.id.btn_open_camera:
-                //拍照按钮
-                mCameraDialog.dismiss();
-                CropOptions cropOptions1=new CropOptions.Builder().setOutputX(200).setOutputY(200).setWithOwnCrop(true).create();
-                getTakePhoto().onPickFromCaptureWithCrop(imageUri,cropOptions1);
-                break;
-            case R.id.btn_cancel:
-                //取消按钮
-                mCameraDialog.dismiss();
-                break;
         }
     }
 
-    private Toolbar prepareToolbar(TextViewToolbar toolbar, Icarus icarus) {
-        Typeface iconfont = Typeface.createFromAsset(getAssets(), "Simditor.ttf");
-        HashMap<String, Integer> generalButtons = new HashMap<>();
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_BOLD, R.id.button_bold);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_OL, R.id.button_list_ol);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_IMAGE, R.id.button_image);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_BLOCKQUOTE, R.id.button_blockquote);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_HR, R.id.button_hr);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_UL, R.id.button_list_ul);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_ALIGN_LEFT, R.id.button_align_left);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_ALIGN_CENTER, R.id.button_align_center);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_ALIGN_RIGHT, R.id.button_align_right);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_ITALIC, R.id.button_italic);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_INDENT, R.id.button_indent);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_OUTDENT, R.id.button_outdent);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_CODE, R.id.button_math);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_UNDERLINE, R.id.button_underline);
-        generalButtons.put(com.github.mr5.icarus.button.Button.NAME_STRIKETHROUGH, R.id.button_strike_through);
-
-        for (String name : generalButtons.keySet()) {
-            TextView textView = findViewById(generalButtons.get(name));
-            if (textView == null) {
-                continue;
-            }
-            textView.setTypeface(iconfont);
-            TextViewButton button = new TextViewButton(textView, icarus);
-            button.setName(name);
-            toolbar.addButton(button);
-        }
-
-        return toolbar;
-    }
-    public static void show(Context context, String msg,int showtype) {
-        Toast toast = new Toast(context);
-        //设置Toast显示位置，居中，向 X、Y轴偏移量均为0
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        //获取自定义视图
-        View view = LayoutInflater.from(context).inflate(R.layout.toast_view, null);
-        TextView tvMessage = (TextView) view.findViewById(R.id.tv_message_toast);
-        switch (showtype){
-            case 1:
-                tvMessage.setBackgroundResource(R.drawable.bg_btn_login);
-                break;
-            case 2:
-                tvMessage.setBackgroundResource(R.drawable.red_button_background);
-                break;
-            default:
-                break;
-        }
-//        tvMessage.setBackgroundResource(R.drawable.red_button_background);
-        //设置文本
-        tvMessage.setText(msg);
-        //设置视图
-        toast.setView(view);
-        //设置显示时长
-        toast.setDuration(Toast.LENGTH_SHORT);
-        //显示
-        toast.show();
-    }
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
@@ -373,9 +473,7 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
 //                                Log.e("path",response.body().getSuccess().toString());
 //                        ../images/31/15261292911526129248539.jpg结果
 // http://39.105.20.169/notepad/Uploads/images/31/15261292911526129248539.jpg
-                        String Src="http://39.105.20.169/notepad/Uploads/"+response.body().getSuccess().toString().substring(3);
-                        icarus.insertHtml("<img src=\""+Src+"\" />");
-//                        mEditor.insertImage("http://39.105.20.169/notepad/Uploads/"+response.body().getSuccess().toString().substring(3),"dachshund");
+                        mEditor.insertImage("http://39.105.20.169/notepad/Uploads/"+response.body().getSuccess().toString().substring(3),"dachshund");
                         // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
                         if (file.exists() && file.isFile()) {
                             file.delete();//操作完成后删除临时文件
@@ -394,55 +492,18 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
         });
     }
 
-    private void setDialog() {
-        mCameraDialog = new Dialog(Select.this, R.style.BottomDialog);
-        LinearLayout root = (LinearLayout) LayoutInflater.from(Select.this).inflate(
-                R.layout.bottom_dialog, null);
-        //初始化视图
-        root.findViewById(R.id.btn_choose_img).setOnClickListener(this);
-        root.findViewById(R.id.btn_open_camera).setOnClickListener(this);
-        root.findViewById(R.id.btn_cancel).setOnClickListener(this);
-        mCameraDialog.setContentView(root);
-        Window dialogWindow = mCameraDialog.getWindow();
-        dialogWindow.setGravity(Gravity.BOTTOM);
-//        dialogWindow.setWindowAnimations(R.style.dialogstyle); // 添加动画
-        WindowManager.LayoutParams lp = dialogWindow.getAttributes(); // 获取对话框当前的参数值
-        lp.x = 0; // 新位置X坐标
-        lp.y = 0; // 新位置Y坐标
-        lp.width = (int) getResources().getDisplayMetrics().widthPixels; // 宽度
-        root.measure(0, 0);
-        lp.height = root.getMeasuredHeight();
-
-        lp.alpha = 9f; // 透明度
-        dialogWindow.setAttributes(lp);
-        mCameraDialog.show();
-    }
-
     public void deleteDatebase(){
         DeleteModel model = new DeleteModel();
         model.getDelMsg(""+rowid,tListener);
     }
 
     public void updateDatabase(){
-        final UpdateModel model=new UpdateModel();
-        icarus.getContent(new com.github.mr5.icarus.Callback() {
-            @Override
-            public void run(String params) {
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(params);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                params = jsonObject.optString("content");
-                model.getUpdateMsg(""+user_id_remember,rowid,tv1.getText().toString(),params,ttListener);
-            }
-        });
-
+        UpdateModel model=new UpdateModel();
+        model.getUpdateMsg(""+user_id_remember,rowid,tv1.getText().toString(),mPreview.getText().toString(),ttListener);
     }
 
     private void showToast(String info){
-        Toast.makeText(Select.this,info,Toast.LENGTH_SHORT).show();
+        Toast.makeText(Select1.this,info,Toast.LENGTH_SHORT).show();
     }
     @Override
     protected void onStart() {
@@ -513,38 +574,27 @@ public class Select extends TakePhotoActivity implements View.OnClickListener{
     }
     @Override
     public void onBackPressed() {
-        icarus.getContent(new com.github.mr5.icarus.Callback() {
-            @Override
-            public void run(String params) {
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(params);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                params = jsonObject.optString("content");
-                if (!tv1.getText().toString().equals(""+tvC.trim()) || !params.toString().equals(""+tvA.trim())) {
-                    new AlertDialog.Builder(Select.this)
-                            .setTitle("提示！")
-                            .setMessage("内容有变化,是否放弃修改内容")
-                            .setPositiveButton("返回保存", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            }).create().show();
+        if (!tv1.getText().toString().equals(""+tvC.trim()) || !mPreview.getText().toString().equals(""+tvA.trim())) {
+            Log.e("tittle",tvC+"+"+tv1.getText().toString());
+            Log.e("content",tvA+"+"+mPreview.getText().toString());
+            new AlertDialog.Builder(this)
+                    .setTitle("提示！")
+                    .setMessage("内容有变化,是否放弃修改内容")
+                    .setPositiveButton("返回保存", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).create().show();
 //            super.onBackPressed();
-                }else{
-                    finish();
-                }
-            }
-        });
-
+        }else{
+            finish();
+        }
     }
     static void setStatusBarColor4_4(Activity activity, int statusColor) {
         Window window = activity.getWindow();

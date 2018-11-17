@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -54,15 +55,25 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.github.mr5.icarus.Icarus;
+import com.github.mr5.icarus.TextViewToolbar;
+import com.github.mr5.icarus.Toolbar;
+import com.github.mr5.icarus.button.TextViewButton;
+import com.github.mr5.icarus.popover.HtmlPopoverImpl;
+import com.github.mr5.icarus.popover.LinkPopoverImpl;
 import com.jph.takephoto.app.TakePhotoFragment;
 import com.jph.takephoto.model.CropOptions;
 import com.jph.takephoto.model.TResult;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import cn.com.box.black.bbnotepad.Bean.ResultBean;
 import cn.com.box.black.bbnotepad.Bean.SuccessBean;
@@ -113,6 +124,7 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
 
     private RichEditor mEditor;
     private TextView mPreview;
+    protected Icarus icarus;
     private Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -207,7 +219,7 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
         };
         btnView=btn;
 
-        mPreview = (TextView) view.findViewById(R.id.preview);
+        mPreview = view.findViewById(R.id.preview);
         mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
             @Override public void onTextChange(String text) {
                 mPreview.setText(text);
@@ -236,6 +248,7 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
             @Override public void onClick(View v) {
                 setBtnBackground(2);
                 mEditor.setBold();
+
 //                showToast("Bold");
             }
         });
@@ -391,10 +404,8 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
                     inputManager.showSoftInput(mEditor, 0);
                 }
                 setDialog();
-
             }
         });
-
 //        view.findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
 //            @Override public void onClick(View v) {
 //                mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
@@ -432,9 +443,16 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
         if(!btn_flag[num]){
             btnView[num].setBackgroundResource(R.drawable.gray_button_background);
             btn_flag[num]=true;
+//            mPreview.append("&nbsp;");
+
+            Log.e("selection","postion:"+mPreview.getSelectionStart());
+
+            mEditor.focusEditor();
         }else{
             btnView[num].setBackgroundResource(0);
             btn_flag[num]=false;
+//            mPreview.append("&nbsp;");
+            mEditor.focusEditor();
         }
     }
 
@@ -496,6 +514,7 @@ public class Fragment11 extends TakePhotoFragment implements View.OnClickListene
                                 // continue with delete
                                 editText_title.setText("");
                                 mEditor.setHtml("");
+                                mPreview.setText("");
                             }
                         })
                         .setNegativeButton("否", new DialogInterface.OnClickListener() {
