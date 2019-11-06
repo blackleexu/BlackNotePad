@@ -40,6 +40,7 @@ import cn.com.box.black.bbnotepad.Listener.TListener;
 import cn.com.box.black.bbnotepad.Model.DeleteModel;
 import cn.com.box.black.bbnotepad.Model.UpdateModel;
 import cn.com.box.black.bbnotepad.R;
+import cn.com.box.black.bbnotepad.Server;
 import cn.com.box.black.bbnotepad.Service.NoteDB;
 import jp.wasabeef.richeditor.RichEditor;
 import okhttp3.MediaType;
@@ -448,7 +449,7 @@ public class Select1 extends TakePhotoActivity implements View.OnClickListener{
 
         path=result.getImage().getOriginalPath().toString();
         Retrofit retrofit= new Retrofit.Builder()
-                .baseUrl("http://39.105.20.169/notepad/Uploads/php_upload/")
+                .baseUrl(Server.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         final cn.com.box.black.bbnotepad.Service.Service service = retrofit.create(cn.com.box.black.bbnotepad.Service.Service.class);
@@ -473,7 +474,7 @@ public class Select1 extends TakePhotoActivity implements View.OnClickListener{
 //                                Log.e("path",response.body().getSuccess().toString());
 //                        ../images/31/15261292911526129248539.jpg结果
 // http://39.105.20.169/notepad/Uploads/images/31/15261292911526129248539.jpg
-                        mEditor.insertImage("http://39.105.20.169/notepad/Uploads/"+response.body().getSuccess().toString().substring(3),"dachshund");
+                        mEditor.insertImage(response.body().getSuccess().toString(),"dachshund");
                         // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
                         if (file.exists() && file.isFile()) {
                             file.delete();//操作完成后删除临时文件

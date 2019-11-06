@@ -11,6 +11,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -55,7 +56,7 @@ public interface Service {
     Call<SuccessBean> getUpdtMsg(@Query("uid") String uid,@Query("nid") String nid,@Query("tittle") String tittle,@Query("content") String content);
 
     @Multipart
-    @POST("upload.php")
+    @POST("upload")
     Call<ResultBean> uploadImage(@Part MultipartBody.Part file, @Part("uid") RequestBody uid);
 
     @GET("getip")

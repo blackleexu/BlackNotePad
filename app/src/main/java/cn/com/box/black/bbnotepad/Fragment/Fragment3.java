@@ -44,6 +44,7 @@ import cn.com.box.black.bbnotepad.Listener.TListener;
 import cn.com.box.black.bbnotepad.Model.PortraitModel;
 import cn.com.box.black.bbnotepad.Model.UserInfoModel;
 import cn.com.box.black.bbnotepad.R;
+import cn.com.box.black.bbnotepad.Server;
 import cn.com.box.black.bbnotepad.Service.NoteDB;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import jp.wasabeef.blurry.Blurry;
@@ -112,7 +113,7 @@ public class Fragment3 extends TakePhotoFragment {
                 info_name=Bean.getUname().toString();
                 info_sex=Bean.getGender().toString();
                 info_tel=Bean.getTelphone().toString();
-                iPortrait="http://39.105.20.169/notepad/Uploads/"+Bean.getPic();
+                iPortrait=Bean.getPic();
 
                 new Thread(){
                     public void run(){
@@ -138,7 +139,7 @@ public class Fragment3 extends TakePhotoFragment {
                 Toast.makeText(context,"更新头像失败，请重试",Toast.LENGTH_SHORT).show();
             }
             else{
-                Glide.with(context).load("http://39.105.20.169/notepad/Uploads/"+sPortrait).into(portrait);
+                Glide.with(context).load(sPortrait).into(portrait);
                 show(context,"修改头像成功");
             }
         }
@@ -239,7 +240,7 @@ public class Fragment3 extends TakePhotoFragment {
 
         path=result.getImage().getOriginalPath().toString();
         Retrofit retrofit= new Retrofit.Builder()
-                .baseUrl("http://39.105.20.169/notepad/Uploads/php_upload/")
+                .baseUrl(Server.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         final cn.com.box.black.bbnotepad.Service.Service service = retrofit.create(cn.com.box.black.bbnotepad.Service.Service.class);
@@ -260,7 +261,7 @@ public class Fragment3 extends TakePhotoFragment {
             public void onResponse(Call<ResultBean> call, Response<ResultBean> response) {
                 if (response.isSuccessful()) {
                     if (!response.body().getSuccess().toString().equals("0")) {
-                        sPortrait=response.body().getSuccess().toString().substring(3);
+                        sPortrait=response.body().getSuccess().toString();
                         PortraitModel pModel = new PortraitModel();
                         pModel.getPorMsg(""+user_id_remember,sPortrait,pListener);
 //                                Log.e("path",response.body().getSuccess().toString());

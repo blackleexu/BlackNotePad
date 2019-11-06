@@ -11,13 +11,16 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -49,6 +52,9 @@ public class StartActivity extends AppCompatActivity {
     TListener<ServerIPBean> ttListener = new TListener<ServerIPBean>() {
         @Override
         public void onResponse(ServerIPBean ipBean) {
+            if(ipBean.getSuccess().toString().equals("0")) {
+                Toast.makeText(StartActivity.this, ipBean.getMsg().toString(), Toast.LENGTH_SHORT).show();
+            }
             ip = ipBean.getIp().toString();
             //记录访问IP
             Server.BASE_URL = ip;

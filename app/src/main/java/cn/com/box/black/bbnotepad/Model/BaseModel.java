@@ -2,10 +2,12 @@ package cn.com.box.black.bbnotepad.Model;
 
 import java.util.List;
 
+import cn.com.box.black.bbnotepad.Interceptor.AppendUrlParamIntercepter;
 import cn.com.box.black.bbnotepad.Listener.ListListener;
 import cn.com.box.black.bbnotepad.Listener.TListener;
 import cn.com.box.black.bbnotepad.Server;
 import cn.com.box.black.bbnotepad.Service.Service;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -20,8 +22,12 @@ public class BaseModel {
     Service service;
     Retrofit retrofit;
     public Retrofit getRetrofit(){
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        //添加拦截器，自动追加参数
+        builder.addInterceptor(new AppendUrlParamIntercepter());
         retrofit = new Retrofit.Builder()
                 .baseUrl(Server.BASE_URL)
+                .client(builder.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return retrofit;
